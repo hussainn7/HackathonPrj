@@ -1,0 +1,4 @@
+flask
+pdfminer.six
+google-generativeai
+flask-cors
