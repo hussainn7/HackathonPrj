@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alexandria Cloud - Knowledge That Never Burns Again</title>
+    <title>CodeExplore - Knowledge That Never Burns Again</title>
     <meta name="description" content="Distributed knowledge preservation across ancient nodes. Upload scrolls, replicate wisdom, ensure survival even if Alexandria falls." />
-    <meta name="author" content="Alexandria Cloud" />
+    <meta name="author" content="CodeExplore" />
 
-    <meta property="og:title" content="Alexandria Cloud - Knowledge That Never Burns Again" />
+    <meta property="og:title" content="CodeExplore - Knowledge That Never Burns Again" />
     <meta property="og:description" content="Distributed knowledge preservation across ancient nodes. Upload scrolls, replicate wisdom, ensure survival even if Alexandria falls." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/placeholder.svg" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@alexandriacloud" />
+    <meta name="twitter:site" content="@codeexplore" />
     <meta name="twitter:image" content="/placeholder.svg" />
     
     <!-- Classical fonts for ancient theme -->
@@ -23,6 +23,16 @@
   </head>
 
   <body>
+    <!-- SVG filter for ragged burn edge effect -->
+    <svg width="0" height="0" style="position: absolute;">
+      <defs>
+        <filter id="burn-ragged" x="-50%" y="-50%" width="200%" height="200%">
+          <feTurbulence baseFrequency="0.9" numOctaves="4" result="noise" type="fractalNoise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="8"/>
+        </filter>
+      </defs>
+    </svg>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

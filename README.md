@@ -1,4 +1,4 @@
-# Alexandria Cloud - Knowledge That Never Burns Again
+# CodeExplore - Knowledge That Never Burns Again
 
 A distributed knowledge preservation platform inspired by the ancient library network of Alexandria, Pergamon, and Rhodes. Upload scrolls, replicate wisdom, and ensure survival even if Alexandria falls.
 
