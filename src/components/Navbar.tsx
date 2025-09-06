@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Scroll, BookOpen, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
@@ -8,23 +9,25 @@ const Navbar = () => {
       <div className="glass-card px-6 py-3 rounded-full backdrop-blur-lg bg-white/20 border border-white/30">
         <div className="flex items-center gap-6">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
               <Scroll className="w-5 h-5 text-primary" />
             </div>
-            <span className="font-bold text-foreground font-cinzel">Alexandria</span>
-          </div>
+            <span className="font-bold text-foreground font-cinzel">CodeExplore</span>
+          </Link>
           
           {/* Navigation buttons */}
           <div className="flex items-center gap-3">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-foreground hover:bg-white/20 hover:text-primary transition-colors"
-            >
-              <BookOpen className="w-4 h-4 mr-2" />
-              Library
-            </Button>
+            <Link to="/library">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="text-foreground hover:bg-white/20 hover:text-primary transition-colors"
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Library
+              </Button>
+            </Link>
             <Button 
               variant="ghost" 
               size="sm"
