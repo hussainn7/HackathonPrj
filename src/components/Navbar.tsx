@@ -26,8 +26,6 @@ const Navbar = () => {
               <Scroll className="w-5 h-5 text-primary" />
             </div>
             <span className="font-bold text-foreground font-cinzel">Alexandria</span>
-          </div>
-            <span className="font-bold text-foreground font-cinzel">CodeExplore</span>
           </Link>
           {/* Navigation buttons */}
           <div className="flex items-center gap-3">
