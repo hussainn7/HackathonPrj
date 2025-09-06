@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AI-generated files and attribution
+*.lovable
+lovable.*
+.lovable/
