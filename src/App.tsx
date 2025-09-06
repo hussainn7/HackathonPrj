@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Library from "./pages/Library";
 import NotFound from "./pages/NotFound";
+import LibrarianCreateAccount from "./pages/LibrarianCreateAccount";
+import LibrarianLogin from "./pages/LibrarianLogin";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +19,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/create-account" element={<LibrarianCreateAccount />} />
+          <Route path="/login" element={<LibrarianLogin />} />
           <Route path="/library" element={<Library />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
