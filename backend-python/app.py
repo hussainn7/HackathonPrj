@@ -5,6 +5,11 @@ import google.generativeai as genai
 from pdfminer.high_level import extract_text
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+import bcrypt
+import jwt
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from datetime import datetime, timedelta
 
 genai.configure(api_key="AIzaSyCSqscxiqlJ9VKMX59P65tq-Meatj3-zno")
 model = genai.GenerativeModel("gemini-1.5-flash")
@@ -14,6 +19,36 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 CORS(app)
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Database configuration
+SECRET = os.getenv('JWT_SECRET', 'alexandria_secret')
+DATABASE_URL = 'postgresql://user:52Bw6OgjAcbW9VRpmLFfwNBagyc6WtT9@dpg-d2u4hv7fte5s73aq7a9g-a.ohio-postgres.render.com/forsyth_hacks_db'
+
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL, sslmode='require', cursor_factory=RealDictCursor)
+
+def ensure_users_table():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+            CREATE TABLE IF NOT EXISTS users (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                email TEXT UNIQUE,
+                display_name TEXT,
+                is_verified_librarian BOOLEAN DEFAULT FALSE,
+                reputation INT DEFAULT 0,
+                created_at TIMESTAMPTZ DEFAULT now(),
+                password_hash TEXT NOT NULL
+            );
+        """)
+        conn.commit()
+    except Exception as e:
+        print(f"Error creating table: {e}")
+    finally:
+        cur.close()
+        conn.close()
 
 def detect_language_with_gemini(text: str) -> dict:
     prompt = f"""
@@ -107,6 +142,94 @@ def generate_summary():
         })
     except Exception as e:
         return jsonify({'error': f'Failed to generate summary: {str(e)}'}), 500
+
+# Authentication endpoints
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    ensure_users_table()
+    data = request.get_json()
+    
+    if not data or 'email' not in data or 'password' not in data:
+        return jsonify({'error': 'Email and password required.'}), 400
+    
+    email = data['email']
+    password = data['password']
+    display_name = data.get('display_name')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Check if user already exists
+        cur.execute('SELECT id FROM users WHERE email = %s', (email,))
+        if cur.fetchone():
+            return jsonify({'error': 'Email already registered.'}), 400
+        
+        # Hash password and create user
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        cur.execute(
+            'INSERT INTO users (email, password_hash, display_name) VALUES (%s, %s, %s)',
+            (email, password_hash, display_name)
+        )
+        conn.commit()
+        
+        return jsonify({'message': 'Account created successfully.'}), 201
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': 'Server error.'}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    ensure_users_table()
+    data = request.get_json()
+    
+    if not data or 'email' not in data or 'password' not in data:
+        return jsonify({'error': 'Email and password required.'}), 400
+    
+    email = data['email']
+    password = data['password']
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Get user from database
+        cur.execute('SELECT * FROM users WHERE email = %s', (email,))
+        user = cur.fetchone()
+        
+        if not user:
+            return jsonify({'error': 'Invalid credentials.'}), 401
+        
+        # Verify password
+        if not bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+            return jsonify({'error': 'Invalid credentials.'}), 401
+        
+        # Generate JWT token
+        token_payload = {
+            'email': user['email'],
+            'id': str(user['id']),
+            'display_name': user['display_name'],
+            'is_verified_librarian': user['is_verified_librarian'],
+            'reputation': user['reputation'],
+            'exp': datetime.utcnow() + timedelta(hours=2)
+        }
+        
+        token = jwt.encode(token_payload, SECRET, algorithm='HS256')
+        
+        return jsonify({
+            'message': 'Login successful',
+            'token': token
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Server error.'}), 500
+    finally:
+        cur.close()
+        conn.close()
 
 if __name__ == '__main__':
     app.run(port=5001, debug=True)

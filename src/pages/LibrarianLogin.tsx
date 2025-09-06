@@ -29,7 +29,8 @@ const LibrarianLogin: React.FC = () => {
   window.location.href = '/';
       }
     } catch (err) {
-      setError('Network error.');
+
+      setError(err.message);
     } finally {
       setLoading(false);
     }
