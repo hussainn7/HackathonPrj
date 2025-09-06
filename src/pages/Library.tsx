@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import FloatingScrolls from '@/components/FloatingScrolls';
 import Footer from '@/components/Footer';
+import UploadModal from '@/components/UploadModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,9 +14,10 @@ import { Search, Upload, Download, Eye, Star, Clock, Globe, BookOpen, Archive, T
 const Library = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
-  // Mock data for scrolls
-  const scrolls = [
+  // State for scrolls - now dynamic to allow adding new uploads
+  const [scrolls, setScrolls] = useState([
     {
       id: 1,
       title: "The Art of War",
@@ -88,7 +90,7 @@ const Library = () => {
       description: "Epic poem recounting the Trojan War",
       tags: ["literature", "poetry", "ancient", "epic"]
     }
-  ];
+  ]);
 
   const categories = [
     { id: 'all', name: 'All Scrolls', count: scrolls.length },
@@ -125,6 +127,35 @@ const Library = () => {
       case 'literature': return '📚';
       default: return '📜';
     }
+  };
+
+  // Function to add a new scroll to the library
+  const addScrollToLibrary = (scrollData: {
+    title: string;
+    author?: string;
+    language: string;
+    description?: string;
+    category?: string;
+    transcript?: string;
+    summary?: string;
+  }) => {
+    const newScroll = {
+      id: scrolls.length + 1,
+      title: scrollData.title,
+      author: scrollData.author || "Unknown Author",
+      category: scrollData.category || "literature",
+      language: scrollData.language,
+      dateAdded: new Date().toISOString().split('T')[0],
+      replicas: 1,
+      status: "preserved" as const,
+      description: scrollData.description || scrollData.summary || "Recently uploaded scroll",
+      tags: ["uploaded", "recent", scrollData.category || "literature"],
+      transcript: scrollData.transcript,
+      summary: scrollData.summary
+    };
+
+    setScrolls(prevScrolls => [newScroll, ...prevScrolls]);
+    return newScroll;
   };
 
   return (
@@ -191,7 +222,10 @@ const Library = () => {
                   className="pl-10 glass-input"
                 />
               </div>
-              <Button className="glass-button">
+              <Button 
+                className="glass-button"
+                onClick={() => setIsUploadModalOpen(true)}
+              >
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Scroll
               </Button>
@@ -297,6 +331,13 @@ const Library = () => {
       </main>
       
       <Footer />
+      
+      {/* Upload Modal */}
+      <UploadModal 
+        isOpen={isUploadModalOpen} 
+        onClose={() => setIsUploadModalOpen(false)}
+        onScrollSaved={addScrollToLibrary}
+      />
     </div>
   );
 };

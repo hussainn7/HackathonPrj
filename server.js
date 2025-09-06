@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { createLibrarian, loginLibrarian } from './src/lib/api/auth.ts';
+import { createLibrarian, loginLibrarian } from './auth.js';
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(bodyParser.json());
